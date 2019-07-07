@@ -21,7 +21,7 @@ import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.2  # 占用GPU20%的显存
+config.gpu_options.per_process_gpu_memory_fraction = 0.3  # 占用GPU20%的显存
 set_session(tf.Session(config=config))
 
 class YOLO(object):

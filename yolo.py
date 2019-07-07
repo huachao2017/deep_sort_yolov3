@@ -17,6 +17,12 @@ from PIL import Image, ImageFont, ImageDraw
 
 from yolo3.model import yolo_eval
 from yolo3.utils import letterbox_image
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.5  # 占用GPU50%的显存
+set_session(tf.Session(config=config))
 
 class YOLO(object):
     def __init__(self):

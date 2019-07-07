@@ -34,9 +34,9 @@ def main(yolo):
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
     tracker = Tracker(metric)
 
-    writeVideo_flag = False
+    writeVideo_flag = True
     
-    video_capture = cv2.VideoCapture(1)
+    video_capture = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420, framerate=(fraction)24/1 ! nvvidconv flip-method=2 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
 
     if writeVideo_flag:
     # Define the codec and create VideoWriter object

@@ -34,9 +34,10 @@ def main(yolo):
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
     tracker = Tracker(metric)
 
-    writeVideo_flag = True
+    writeVideo_flag = False
     
-    video_capture = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420, framerate=(fraction)24/1 ! nvvidconv flip-method=2 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+    # video_capture = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420, framerate=(fraction)24/1 ! nvvidconv flip-method=2 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+    video_capture = cv2.VideoCapture(1)
 
     if writeVideo_flag:
     # Define the codec and create VideoWriter object
@@ -58,8 +59,10 @@ def main(yolo):
         image = Image.fromarray(frame[...,::-1]) #bgr to rgb
         boxs = yolo.detect_image(image)
        # print("box_num",len(boxs))
+        t2 = time.time()
         features = encoder(frame,boxs)
-        
+        t3 = time.time()
+
         # score to 1.0 here).
         detections = [Detection(bbox, 1.0, feature) for bbox, feature in zip(boxs, features)]
         
@@ -69,10 +72,12 @@ def main(yolo):
         indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
         
+        t4 = time.time()
         # Call the tracker
         tracker.predict()
         tracker.update(detections)
-        
+        t5 = time.time()
+
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
@@ -96,6 +101,8 @@ def main(yolo):
                     list_file.write(str(boxs[i][0]) + ' '+str(boxs[i][1]) + ' '+str(boxs[i][2]) + ' '+str(boxs[i][3]) + ' ')
             list_file.write('\n')
             
+        t6 = time.time()
+        print("total:yolo,feature,nonmax,track,other= %.3f:%.3f,%.3f,%.3f,%.3f,%.3f"%(t6-t1,t2-t1,t3-t2,t4-t3,t5-t4,t6-t5))
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         print("fps= %f"%(fps))
         

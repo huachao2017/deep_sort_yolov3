@@ -26,8 +26,8 @@ set_session(tf.Session(config=config))
 
 class YOLO(object):
     def __init__(self):
-        # self.model_path = 'model_data/yolo.h5'
-        self.model_path = 'model_data/yolo-tiny.h5'
+        self.model_path = 'model_data/yolo.h5'
+        # self.model_path = 'model_data/yolo-tiny.h5'
         self.anchors_path = 'model_data/yolo_anchors.txt'
         self.classes_path = 'model_data/coco_classes.txt'
         self.score = 0.5

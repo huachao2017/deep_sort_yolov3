@@ -80,6 +80,7 @@ class YOLO(object):
         return boxes, scores, classes
 
     def detect_image(self, image):
+        t1 = time.time()
         if self.is_fixed_size:
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
             assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
@@ -93,7 +94,8 @@ class YOLO(object):
         #print(image_data.shape)
         image_data /= 255.
         image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
-        
+
+        t2 = time.time()
         out_boxes, out_scores, out_classes = self.sess.run(
             [self.boxes, self.scores, self.classes],
             feed_dict={
@@ -101,6 +103,7 @@ class YOLO(object):
                 self.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
+        t3 = time.time()
         return_boxs = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
@@ -120,6 +123,8 @@ class YOLO(object):
                 y = 0 
             return_boxs.append([x,y,w,h])
 
+        t4 = time.time()
+        print("yolo:before,detect,after= %.3f:%.3f,%.3f,%.3f" % (t4 - t1, t2 - t1, t3 - t2, t4 - t3))
         return return_boxs
 
     def close_session(self):

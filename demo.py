@@ -22,9 +22,10 @@ from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description='DSY demo.')
-parser.add_argument('is_tiny', help='is use yolo tiny', default='f')
+parser.add_argument('mode', help='mode: n:normal,t:tiny,s:standalone yolo', default='n')
 
-def main(yolo):
+def main(yolo,args):
+    is_standalone = (args.mode == 's')
 
    # Definition of the parameters
     max_cosine_distance = 0.3
@@ -54,6 +55,7 @@ def main(yolo):
         
     fps = 0.0
     while True:
+        t0 = time.time()
         ret, frame = video_capture.read()  # frame shape 640*480*3
         if ret != True:
             break
@@ -64,18 +66,29 @@ def main(yolo):
         boxs = yolo.detect_image(image)
        # print("box_num",len(boxs))
         t2 = time.time()
+
+        if is_standalone:
+          # Press Q to stop!
+          if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+          print("total:yolo= %.3f:%.3f" % (
+          t2 - t0, t2 - t1))
+          fps = (fps + (1. / (time.time() - t0))) / 2
+          print("fps= %f" % (fps))
+          continue
+
         features = encoder(frame,boxs)
         t3 = time.time()
 
         # score to 1.0 here).
         detections = [Detection(bbox, 1.0, feature) for bbox, feature in zip(boxs, features)]
-        
+
         # Run non-maxima suppression.
         boxes = np.array([d.tlwh for d in detections])
         scores = np.array([d.confidence for d in detections])
         indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
-        
+
         t4 = time.time()
         # Call the tracker
         tracker.predict()
@@ -84,7 +97,7 @@ def main(yolo):
 
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
-                continue 
+                continue
             bbox = track.to_tlbr()
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
             cv2.putText(frame, str(track.track_id),(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
@@ -106,8 +119,8 @@ def main(yolo):
             list_file.write('\n')
             
         t6 = time.time()
-        print("total:yolo,feature,nonmax,track,other= %.3f:%.3f,%.3f,%.3f,%.3f,%.3f"%(t6-t1,t2-t1,t3-t2,t4-t3,t5-t4,t6-t5))
-        fps  = ( fps + (1./(time.time()-t1)) ) / 2
+        print("total:yolo,feature,nonmax,track,other= %.3f:%.3f,%.3f,%.3f,%.3f,%.3f"%(t6-t0,t2-t1,t3-t2,t4-t3,t5-t4,t6-t5))
+        fps  = ( fps + (1./(time.time()-t0)) ) / 2
         print("fps= %f"%(fps))
         
         # Press Q to stop!
@@ -122,5 +135,5 @@ def main(yolo):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    is_tiny = (args.is_tiny == 't')
-    main(YOLO(is_tiny))
+    is_tiny = (args.mode == 't')
+    main(YOLO(is_tiny),args)

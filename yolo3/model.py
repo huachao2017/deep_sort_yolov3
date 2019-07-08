@@ -5,7 +5,7 @@ from functools import wraps
 import numpy as np
 import tensorflow as tf
 from keras import backend as K
-from keras.layers import Conv2D, Add, ZeroPadding2D, UpSampling2D, Concatenate
+from keras.layers import Conv2D, Add, ZeroPadding2D, UpSampling2D, Concatenate, MaxPooling2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
@@ -87,6 +87,39 @@ def yolo_body(inputs, num_anchors, num_classes):
     return Model(inputs, [y1,y2,y3])
 
 
+def tiny_yolo_body(inputs, num_anchors, num_classes):
+    '''Create Tiny YOLO_v3 model CNN body in keras.'''
+    x1 = compose(
+        DarknetConv2D_BN_Leaky(16, (3, 3)),
+        MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
+        DarknetConv2D_BN_Leaky(32, (3, 3)),
+        MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
+        DarknetConv2D_BN_Leaky(64, (3, 3)),
+        MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
+        DarknetConv2D_BN_Leaky(128, (3, 3)),
+        MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
+        DarknetConv2D_BN_Leaky(256, (3, 3)))(inputs)
+    x2 = compose(
+        MaxPooling2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
+        DarknetConv2D_BN_Leaky(512, (3, 3)),
+        MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding='same'),
+        DarknetConv2D_BN_Leaky(1024, (3, 3)),
+        DarknetConv2D_BN_Leaky(256, (1, 1)))(x1)
+    y1 = compose(
+        DarknetConv2D_BN_Leaky(512, (3, 3)),
+        DarknetConv2D(num_anchors * (num_classes + 5), (1, 1)))(x2)
+
+    x2 = compose(
+        DarknetConv2D_BN_Leaky(128, (1, 1)),
+        UpSampling2D(2))(x2)
+    y2 = compose(
+        Concatenate(),
+        DarknetConv2D_BN_Leaky(256, (3, 3)),
+        DarknetConv2D(num_anchors * (num_classes + 5), (1, 1)))([x2, x1])
+
+    return Model(inputs, [y1, y2])
+
+
 def yolo_head(feats, anchors, num_classes, input_shape):
     """Convert final layer features to bounding box parameters."""
     num_anchors = len(anchors)
@@ -161,11 +194,12 @@ def yolo_eval(yolo_outputs,
               score_threshold=.6,
               iou_threshold=.5):
     """Evaluate YOLO model on given input and return filtered boxes."""
-    anchor_mask = [[6,7,8], [3,4,5], [0,1,2]]
+    num_layers = len(yolo_outputs)
+    anchor_mask = [[6,7,8], [3,4,5], [0,1,2]] if num_layers==3 else [[3,4,5], [1,2,3]] # default setting
     input_shape = K.shape(yolo_outputs[0])[1:3] * 32
     boxes = []
     box_scores = []
-    for l in range(3):
+    for l in range(num_layers):
         _boxes, _box_scores = yolo_boxes_and_scores(yolo_outputs[l],
             anchors[anchor_mask[l]], num_classes, input_shape, image_shape)
         boxes.append(_boxes)

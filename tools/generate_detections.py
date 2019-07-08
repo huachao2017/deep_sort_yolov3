@@ -73,7 +73,7 @@ class ImageEncoder(object):
     def __init__(self, checkpoint_filename, input_name="images",
                  output_name="features"):
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.1  # 占用GPU10%的显存
+        config.gpu_options.per_process_gpu_memory_fraction = 0  # 占用GPU10%的显存
         self.session = tf.Session(config=config)
         with tf.gfile.GFile(checkpoint_filename, "rb") as file_handle:
             graph_def = tf.GraphDef()

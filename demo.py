@@ -22,7 +22,7 @@ from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description='DSY demo.')
-parser.add_argument('is_tiny', help='is use yolo tiny')
+parser.add_argument('is_tiny', help='is use yolo tiny', default='f')
 
 def main(yolo):
 

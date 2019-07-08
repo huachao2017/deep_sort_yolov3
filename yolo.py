@@ -25,10 +25,14 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.5  # 占用GPU50%的显�
 set_session(tf.Session(config=config))
 
 class YOLO(object):
-    def __init__(self):
-        self.model_path = 'model_data/yolo.h5'
-        # self.model_path = 'model_data/yolo-tiny.h5'
-        self.anchors_path = 'model_data/yolo_anchors.txt'
+    def __init__(self,is_tiny = False):
+        if is_tiny:
+            self.model_path = 'model_data/yolo_tiny.h5'
+            self.anchors_path = 'model_data/yolo_tiny_anchors.txt'
+        else:
+            self.model_path = 'model_data/yolo.h5'
+            self.anchors_path = 'model_data/yolo_anchors.txt'
+
         self.classes_path = 'model_data/coco_classes.txt'
         self.score = 0.5
         self.iou = 0.5

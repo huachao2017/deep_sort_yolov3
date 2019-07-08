@@ -3,6 +3,7 @@
 
 from __future__ import division, print_function, absolute_import
 
+import argparse
 import os
 from timeit import time
 import warnings
@@ -19,6 +20,9 @@ from deep_sort.tracker import Tracker
 from tools import generate_detections as gdet
 from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
+
+parser = argparse.ArgumentParser(description='DSY demo.')
+parser.add_argument('is_tiny', help='is use yolo tiny')
 
 def main(yolo):
 
@@ -117,4 +121,6 @@ def main(yolo):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    main(YOLO())
+    args = parser.parse_args()
+    is_tiny = (args.is_tiny == 't')
+    main(YOLO(is_tiny))

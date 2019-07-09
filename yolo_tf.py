@@ -45,7 +45,7 @@ class YOLO_TF(object):
 
         print('{} model, anchors, and classes loaded.'.format(self.model_path))
         config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.3  # 占用GPU30%的显存
+        config.gpu_options.per_process_gpu_memory_fraction = 0.5  # 占用GPU50%的显存
         self._graph = tf.Graph()
         with self._graph.as_default():
             self.input_data = tf.placeholder(tf.float32, [1, self.model_image_size[1], self.model_image_size[0], 3], name='input_data')

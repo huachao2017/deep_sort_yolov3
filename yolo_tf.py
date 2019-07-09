@@ -22,16 +22,17 @@ from utils.nms_utils import gpu_nms
 class YOLO_TF(object):
     def __init__(self,is_tiny = False):
         if is_tiny:
-            self.model_path = 'model_data/??' #TODO
-            self.anchors_path = 'model_data/yolo_tiny_anchors.txt'
+            self.model_path = './model_data/??' #TODO
+            self.anchors_path = './model_data/yolo_tiny_anchors.txt'
         else:
-            self.model_path = 'model_data/yolov3.ckpt'
-            self.anchors_path = 'model_data/yolo_anchors.txt'
+            self.model_path = './model_data/yolov3.ckpt'
+            self.anchors_path = './model_data/yolo_anchors.txt'
 
-        self.classes_path = 'model_data/coco_classes.txt'
-        self.score = 0.5
-        self.iou = 0.5
-        self.class_names = read_class_names(os.path.expanduser(self.anchors_path))
+        self.classes_path = './model_data/coco_classes.txt'
+        self.score = 0.3
+        self.iou = 0.45
+        self.class_names = read_class_names(os.path.expanduser(self.classes_path))
+        self.num_class = len(self.class_names)
         self.anchors = parse_anchors(os.path.expanduser(self.anchors_path))
 
         self.model_image_size = (416, 416) # fixed size or (None, None)
@@ -46,14 +47,14 @@ class YOLO_TF(object):
         self._graph = tf.Graph()
         with self._graph.as_default():
             self.input_data = tf.placeholder(tf.float32, [1, self.model_image_size[1], self.model_image_size[0], 3], name='input_data')
-            yolo_model = yolov3(len(self.class_names), self.anchors)
+            yolo_model = yolov3(self.num_class, self.anchors)
             with tf.variable_scope('yolov3'):
                 pred_feature_maps = yolo_model.forward(self.input_data, False)
             pred_boxes, pred_confs, pred_probs = yolo_model.predict(pred_feature_maps)
 
             pred_scores = pred_confs * pred_probs
 
-            self.boxes, self.scores, self.classes = gpu_nms(pred_boxes, pred_scores, len(self.class_names), max_boxes=200, score_thresh=self.score,
+            self.boxes, self.scores, self.classes = gpu_nms(pred_boxes, pred_scores, self.num_class, max_boxes=200, score_thresh=self.score,
                                             nms_thresh=self.iou)
 
             saver = tf.train.Saver()

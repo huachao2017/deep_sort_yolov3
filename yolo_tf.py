@@ -17,6 +17,8 @@ from yolo3.utils import letterbox_image
 from model import yolov3
 from utils.misc_utils import parse_anchors, read_class_names
 from utils.nms_utils import gpu_nms
+from utils.data_aug import letterbox_resize
+import cv2
 
 
 class YOLO_TF(object):
@@ -63,36 +65,24 @@ class YOLO_TF(object):
             saver.restore(self.sess, os.path.expanduser(self.model_path))
 
 
-    def detect_image(self, image):
+    def detect_image(self, frame):
         t1 = time.time()
-        if self.is_fixed_size:
-            assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
-            assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
-            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
-        else:
-            new_image_size = (image.width - (image.width % 32),
-                              image.height - (image.height % 32))
-            # TODO
-            # boxed_image = letterbox_image(image, new_image_size)
-        image_data = np.array(boxed_image, dtype='float32')
+        img, resize_ratio, dw, dh = letterbox_resize(frame, self.model_image_size[0], self.model_image_size[1])
 
-        #print(image_data.shape)
-        image_data /= 255.
-        image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = np.asarray(img, np.float32)
+        img = img[np.newaxis, :] / 255.
+
 
         t2 = time.time()
         out_boxes, out_scores, out_classes = self.sess.run(
             [self.boxes, self.scores, self.classes],
             feed_dict={
-                self.input_data: image_data
+                self.input_data: img
             })
         t3 = time.time()
-        if self.is_fixed_size:
-            image_w, image_h = image.size
-            out_boxes[:, [0, 2]] *= (image_w / float(self.model_image_size[0]))
-            out_boxes[:, [1, 3]] *= (image_h / float(self.model_image_size[1]))
-        else:
-            pass
+        out_boxes[:, [0, 2]] *= (out_boxes[:, [0, 2]] - dw) / resize_ratio
+        out_boxes[:, [1, 3]] *= (out_boxes[:, [1, 3]] - dh) / resize_ratio
         return_boxs = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]

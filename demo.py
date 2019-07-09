@@ -63,8 +63,7 @@ def main(yolo,args):
         t1 = time.time()
 
        # image = Image.fromarray(frame)
-        image = Image.fromarray(frame[...,::-1]) #bgr to rgb
-        boxs = yolo.detect_image(image)
+        boxs = yolo.detect_image(frame)
        # print("box_num",len(boxs))
         t2 = time.time()
 

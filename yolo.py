@@ -83,8 +83,9 @@ class YOLO(object):
                 score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
 
-    def detect_image(self, image):
+    def detect_image(self, frame):
         t1 = time.time()
+        image = Image.fromarray(frame[...,::-1]) #bgr to rgb
         if self.is_fixed_size:
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
             assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'

@@ -87,6 +87,12 @@ class YOLO_TF(object):
                 self.input_data: image_data
             })
         t3 = time.time()
+        if self.is_fixed_size:
+            image_w, image_h = image.size
+            out_boxes[:, [0, 2]] *= (image_w / float(self.model_image_size[0]))
+            out_boxes[:, [1, 3]] *= (image_h / float(self.model_image_size[1]))
+        else:
+            pass
         return_boxs = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]

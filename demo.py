@@ -11,7 +11,7 @@ import sys
 import cv2
 import numpy as np
 from PIL import Image
-from yolo import YOLO
+# from yolo import YOLO
 from yolo_tf import YOLO_TF
 
 from deep_sort import preprocessing

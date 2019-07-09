@@ -13,7 +13,7 @@ from timeit import default_timer as timer  ### to calculate FPS
 import numpy as np
 
 import tensorflow as tf
-import cv2
+from yolo3.utils import letterbox_image
 from model import yolov3
 from utils.misc_utils import parse_anchors, read_class_names
 from utils.nms_utils import gpu_nms
@@ -68,8 +68,7 @@ class YOLO_TF(object):
         if self.is_fixed_size:
             assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
             assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
-            height_ori, width_ori = image.shape[:2]
-            boxed_image = cv2.resize(image, tuple(reversed(self.model_image_size)))
+            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
         else:
             new_image_size = (image.width - (image.width % 32),
                               image.height - (image.height % 32))

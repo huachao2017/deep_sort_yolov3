@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from yolo import YOLO
+from yolo_tf import YOLO_TF
 
 from deep_sort import preprocessing
 from deep_sort import nn_matching
@@ -136,4 +137,5 @@ def main(yolo,args):
 if __name__ == '__main__':
     args = parser.parse_args()
     is_tiny = (args.mode == 't')
-    main(YOLO(is_tiny),args)
+    # main(YOLO(is_tiny),args)
+    main(YOLO_TF(is_tiny),args)

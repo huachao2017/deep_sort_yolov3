@@ -90,10 +90,10 @@ class YOLO_TF(object):
                 continue
             box = out_boxes[i]
            # score = out_scores[i]  
-            x = int(box[1])  
-            y = int(box[0])  
-            w = int(box[3]-box[1])
-            h = int(box[2]-box[0])
+            x = int(box[0])
+            y = int(box[1])
+            w = int(box[2]-box[0])
+            h = int(box[3]-box[1])
             if x < 0 :
                 w = w + x
                 x = 0

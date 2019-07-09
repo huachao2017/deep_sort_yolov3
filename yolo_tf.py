@@ -81,8 +81,8 @@ class YOLO_TF(object):
                 self.input_data: img
             })
         t3 = time.time()
-        out_boxes[:, [0, 2]] *= (out_boxes[:, [0, 2]] - dw) / resize_ratio
-        out_boxes[:, [1, 3]] *= (out_boxes[:, [1, 3]] - dh) / resize_ratio
+        out_boxes[:, [0, 2]] = (out_boxes[:, [0, 2]] - dw) / resize_ratio
+        out_boxes[:, [1, 3]] = (out_boxes[:, [1, 3]] - dh) / resize_ratio
         return_boxs = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]

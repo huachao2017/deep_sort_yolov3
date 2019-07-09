@@ -21,8 +21,16 @@ QQ group: 姿态检测＆跟踪 781184396
 
   ```
    please download the weights at first from yolo website. 
-   python convert.py yolov3.cfg yolov3.weights model_data/yolo.h5
+   python convert_keras.py yolov3.cfg yolov3.weights model_data/yolo.h5
   ```
+4. Convert the Darknet YOLO model to a tensorflow model by yourself:
+The pretrained darknet weights file can be downloaded [here](https://pjreddie.com/media/files/yolov3.weights). Place this weights file under directory `./data/darknet_weights/` and then run:
+
+```shell
+python convert_tf.py
+```
+
+Then the converted TensorFlow checkpoint file will be saved to `./model_data/` directory.
 
 # Dependencies
 
@@ -45,6 +53,7 @@ QQ group: 姿态检测＆跟踪 781184396
   
           if predicted_class != 'person' : 
                continue 
+
 
 # Note 
 

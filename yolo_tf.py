@@ -41,6 +41,8 @@ class YOLO_TF(object):
     def load(self):
 
         print('{} model, anchors, and classes loaded.'.format(self.model_path))
+        config = tf.ConfigProto()
+        config.gpu_options.per_process_gpu_memory_fraction = 0.3  # 占用GPU30%的显存
         self._graph = tf.Graph()
         with self._graph.as_default():
             self.input_data = tf.placeholder(tf.float32, [1, self.model_image_size[1], self.model_image_size[0], 3], name='input_data')
@@ -54,10 +56,9 @@ class YOLO_TF(object):
             self.boxes, self.scores, self.classes = gpu_nms(pred_boxes, pred_scores, len(self.class_names), max_boxes=200, score_thresh=self.score,
                                             nms_thresh=self.iou)
 
-            config = tf.ConfigProto()
-            config.gpu_options.per_process_gpu_memory_fraction = 0.3  # 占用GPU30%的显存
-            self.sess = tf.Session(config=config)
             saver = tf.train.Saver()
+
+            self.sess = tf.Session(config=config)
             saver.restore(self.sess, os.path.expanduser(self.model_path))
 
 

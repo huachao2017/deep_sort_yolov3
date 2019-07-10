@@ -38,7 +38,7 @@ def main(yolo,args):
     encoder = gdet.create_box_encoder(model_filename,batch_size=1)
     
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
-    tracker = Tracker(metric)
+    tracker = Tracker(metric, max_age=100)
 
     writeVideo_flag = True
     

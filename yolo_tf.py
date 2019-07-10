@@ -31,8 +31,8 @@ class YOLO_TF(object):
             self.anchors_path = './model_data/yolo_anchors.txt'
 
         self.classes_path = './model_data/coco_classes.txt'
-        self.score = 0.3
-        self.iou = 0.45
+        self.score = 0.5
+        self.iou = 0.5
         self.class_names = read_class_names(os.path.expanduser(self.classes_path))
         self.num_class = len(self.class_names)
         self.anchors = parse_anchors(os.path.expanduser(self.anchors_path))

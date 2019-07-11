@@ -107,7 +107,7 @@ def main(yolo,args):
                 valid_ids[track.track_id] = track.age
 
         # 增加计数
-        cv2.putText(frame, str(len(valid_ids)), (10, 10), 0, 5e-3 * 200, (0, 255, 0), 2)
+        cv2.putText(frame, 'Count: %d'%(len(valid_ids)), (10, 30), 0, 5e-3 * 200, (0, 255, 0), 2)
 
         for det in detections:
             bbox = det.to_tlbr()

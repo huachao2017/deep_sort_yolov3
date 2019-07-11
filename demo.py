@@ -56,6 +56,7 @@ def main(yolo,args):
         frame_index = -1 
         
     fps = 0.0
+    valid_ids = {}
     while True:
         t0 = time.time()
         ret, frame = video_capture.read()  # frame shape 640*480*3
@@ -102,6 +103,11 @@ def main(yolo,args):
             bbox = track.to_tlbr()
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
             cv2.putText(frame, str(track.track_id),(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+            if track.age>50:
+                valid_ids[track.track_id] = track.age
+
+        # 增加计数
+        cv2.putText(frame, str(len(valid_ids)), (10, 10), 0, 5e-3 * 200, (0, 255, 0), 2)
 
         for det in detections:
             bbox = det.to_tlbr()

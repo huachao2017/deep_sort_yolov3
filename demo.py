@@ -126,7 +126,7 @@ def main(yolo,args):
             list_file.write('\n')
             
         t6 = time.time()
-        print("total:yolo,feature,nonmax,track,other= %.3f:%.3f,%.3f,%.3f,%.3f,%.3f"%(t6-t0,t2-t1,t3-t2,t4-t3,t5-t4,t6-t5))
+        print("total:detect,feature,nonmax,track,other= %.3f:%.3f,%.3f,%.3f,%.3f,%.3f"%(t6-t0,t2-t1,t3-t2,t4-t3,t5-t4,t6-t5))
         fps  = ( fps + (1./(time.time()-t0)) ) / 2
         print("fps= %f"%(fps))
         

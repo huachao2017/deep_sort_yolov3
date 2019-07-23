@@ -129,7 +129,7 @@ class YOLO(object):
             return_boxs.append([x,y,w,h])
 
         t4 = time.time()
-        print("yolo:before,detect,after= %.3f:%.3f,%.3f,%.3f" % (t4 - t1, t2 - t1, t3 - t2, t4 - t3))
+        # print("yolo:before,detect,after= %.3f:%.3f,%.3f,%.3f" % (t4 - t1, t2 - t1, t3 - t2, t4 - t3))
         return return_boxs
 
     def close_session(self):
